@@ -301,6 +301,11 @@ else()
     find_package(GMP 5.0.5 REQUIRED)
     include_directories(${GMP_INCLUDE_DIR})
     set(EXTRA_LIBS ${EXTRA_LIBS} ${GMP_LIBRARIES})
+
+    # Torch
+    find_package(Torch)
+    include_directories(${TORCH_INCLUDE_DIRS})
+    set(EXTRA_LIBS ${EXTRA_LIBS} ${TORCH_LIBRARIES})
 endif()
 
 # DL
@@ -430,7 +435,7 @@ else()
    set(LEAN_LIBRARY_TYPE STATIC)
 endif()
 add_library(leanstatic ${LEAN_LIBRARY_TYPE} ${LEAN_OBJS})
-target_link_libraries(leanstatic ${EXTRA_LIBS})
+target_link_libraries(leanstatic ${EXTRA_LIBS} ${TORCH_LIBRARIES})
 add_subdirectory(api)
 # The DLL (shared library) is not being generated correctly when we use cross-compilation (i.e., generate the Windows DLL using Linux).
 # For some strange reason, it contains a copy of pthread_equal.
@@ -438,7 +443,7 @@ add_subdirectory(api)
 if (NOT("${CROSS_COMPILE}" MATCHES "ON"))
   if ("${STATIC}" MATCHES "OFF")
     add_library(leanshared SHARED shared/init.cpp $<TARGET_OBJECTS:api> ${LEAN_OBJS})
-    target_link_libraries(leanshared ${EXTRA_LIBS})
+    target_link_libraries(leanshared ${EXTRA_LIBS} ${TORCH_LIBRARIES})
     install(TARGETS leanshared DESTINATION lib)
   endif()
   install(TARGETS leanstatic DESTINATION lib)
