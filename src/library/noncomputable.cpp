@@ -18,6 +18,7 @@ Author: Leonardo de Moura
 #include "library/constants.h"
 // TODO(Leo): move inline attribute declaration to library
 #include "library/compiler/inliner.h"
+#include "library/vm/vm.h"
 namespace lean {
 struct noncomputable_ext : public environment_extension {
     name_set m_noncomputable;
@@ -84,7 +85,7 @@ static bool is_noncomputable(type_checker & tc, noncomputable_ext const & ext, n
     } else if (d.is_axiom() && !tc.is_prop(d.get_type())) {
         return true;
     } else if (d.is_constant_assumption()) {
-        return !env.is_builtin(d.get_name()) && !tc.is_prop(d.get_type()) && !is_builtin_extra(d.get_name());
+        return !env.is_builtin(d.get_name()) && !static_cast<bool>(is_vm_function(env, d.get_name())) && !tc.is_prop(d.get_type()) && !is_builtin_extra(d.get_name());
     } else {
         return false;
     }
